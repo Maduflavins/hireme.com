@@ -51,6 +51,14 @@ router.route('/add-new-dev')
                 
             }
         ])
+    });
+
+    router.get('/service_detail/:id', (req, res, next)=>{
+        Dev.findOne({ _id: req.params.id })
+            .populate('owner')
+            .exec(function(err, dev){
+                res.render('main/service_detail', { dev: dev });
+            })
     })
 
 module.exports = router;
