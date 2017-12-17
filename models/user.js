@@ -9,8 +9,8 @@ const UserSchema = new Schema({
   password: String,
   photo: String,
   about: String,
-  gigs: [{
-     type: Schema.Types.ObjectId, ref: 'Gig'
+  devs: [{
+     type: Schema.Types.ObjectId, ref: 'Devs'
   }]
 });
 

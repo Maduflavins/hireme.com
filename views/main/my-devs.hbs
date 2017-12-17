@@ -1,0 +1,36 @@
+<div class="container">
+    <h1 class="text-center">My devs</h1>
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="overview">
+                <div class="add-gig-card">
+                    <p class="text-center" style="margin-top: 40px;">
+                        <a href="/add-new-dev" class="btn btn-success btn-lg">Add a new dev</a>
+                    </p>
+                </div>
+            </div>
+            <div class="overview">
+                <div class="list-orders-card">
+                    <div class="table-margin">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Dev</th>
+                                <th>Title</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {{#each devs}}
+                            <tr>
+                                <td><img class="order-mage-my-dev" src="{{picture}}"</td>
+                                <td>{{title}}</td>
+                            </tr>
+                            {{/each}}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

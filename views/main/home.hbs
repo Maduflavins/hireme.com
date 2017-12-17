@@ -57,15 +57,38 @@
 		<div class="col-md-3">
 			<div class="gig-card">
 
-				<img src="/img/lyrics.jpg" />
+				<img src="/img/copywrite.jpg" />
 				<h4>
-					I will create a song for your lyrics
+					I will build your company website
 				</h4>
 				<h3>
 					NGN100
 				</h3>
 			</div>
 		</div>
+		{{#each devs}}
+		<div class="col-md-3">
+			<div class="gig-card">
+
+				<a href="/service_detail/{{ _id }}<img src="{{picture}}" /></a>
+				<h4>
+					{{ title}}
+				</h4>
+				<h3>
+					NGN{{price}}
+				</h3>
+				<h3>
+					state:{{state}}
+				</h3>
+				<h3>
+					Location:{{region}}
+				</h3>
+				<h3>
+					nearest Bus Stop:{{busstop}}
+				</h3>
+			</div>
+		</div>
+		{{/each}}
 
 	</div>
 </div>
