@@ -73,9 +73,11 @@ require('./realtime/io')(io);
 
 const mainRoutes = require('./routes/main');
 const userRoutes = require('./routes/user');
+const orderRoutes = require('./routes/order');
 
 app.use(mainRoutes);
 app.use(userRoutes);
+app.use(orderRoutes);
 
 http.listen(config.port, (err) => {
   if (err) console.log(err);
