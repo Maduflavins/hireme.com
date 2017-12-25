@@ -18,15 +18,16 @@ router.get('/checkout/single_package/:id', (req, res, next)=>{
 router.route('/payment')
     .get((req, res, next)=>{
         res.render('checkout/payment')
+    })
     .post((req, res, next)=>{
         var dev = req.req.session.dev;
         var price = req.session.price;
         price *= 100;
         stripe.customers.create({
-            email: 'req.user.email'
+            email: req.user.email
         }).then(function(customer){
             return stripe.customers.createSource(customer.id, {
-            source: 'req.body.stripeToken'
+            source: req.body.stripeToken
             });
         }).then(function(source) {
             return stripe.charges.create({
@@ -49,20 +50,48 @@ router.route('/payment')
             // Deal with an error
         });
     })
-    })
 
 
-    router.get('/users/:userId/order/:orderId', (req, res, next)=>{
+    //Chat Page
+    router.get('/users/:userId/orders/:orderId', (req, res, next)=>{
         req.session.orderId = req.params.orderId;
         Order.findOne({ _id: req.params.orderId})
             .populate('buyer')
             .populate('seller')
-            .populate('gig')
+            .populate('dev')
+            .deepPopulate('messages.owner')
             .exec(function(err, order){
-                res.render('order/order-room', { layout: 'chat_layout', order: order });
+                res.render('order/order-room', { layout: 'chat_layout', order: order, helpers: {
+                    if_equals: function(a, b, opts){
+                        if(a.equals(b)){
+                            return opts.fn(this);
+                        }else {
+                            return opts.inverse(this);
+                        }
+                    }
+                } });
+            })
+    });
+
+    router.get('/users/:id/manage_orders', (req, res, next)=>{
+        Order.find({ seller: req.user._id })
+            .populate('buyer')
+            .populate('seller')
+            .populate('dev')
+            .exec(function(err, orders){
+                res.render('order/order-seller', { orders: orders })
             })
     })
 
+    router.get('/users/:id/orders', (req, res, next)=>{
+        Order.find({ buyer: req.user._id })
+            .populate('buyer')
+            .populate('seller')
+            .populate('dev')
+            .exec(function(err, orders){
+                res.render('order/order-buyer', { orders: orders })
+            })
+    })
 
 
 
