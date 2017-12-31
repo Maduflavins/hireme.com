@@ -65,7 +65,7 @@ select {
 }
 
 .hero {
-	background: url('/img/threely-photo.jpeg') no-repeat center center fixed;
+	background: url('/img/devimage.jpg') no-repeat center center fixed;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
@@ -92,7 +92,7 @@ select {
 	text-align: center;
 }
 
-.gig-card {
+.dev-card {
 	background-color: #fff;
 	width: 228px;
 	height: 260px;
@@ -101,28 +101,28 @@ select {
 	padding: 0;
 }
 
-.gig-card img {
+.dev-card img {
 	width: 226px;
 	height: 139px;
 }
 
-.gig-card h4 {
+.dev-card h4 {
 	padding: 10px;
 	font-weight: 400;
 }
 
-.gig-card h3 {
+.dev-card h3 {
 	color: #00b22d;
 	padding: 0px 10px;
 	font-size: 19px;
 }
 
-.gig-card .text-linking {
+.dev-card .text-linking {
 	color: #333333;
 	text-decoration: none;
 }
 
-.gig-card .text-linking:hover {
+.dev-card .text-linking:hover {
 	color: green;
 	text-decoration: underline;
 }
