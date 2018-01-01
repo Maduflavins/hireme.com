@@ -7,7 +7,7 @@ const UserSchema = new Schema({
   email: { type: String, unique: true, lowercase: true},
   name: String,
   password: String,
-  photo: String,
+  photo:{type: String, required: true},
   about: String,
   devs: [{
      type: Schema.Types.ObjectId, ref: 'Devs'

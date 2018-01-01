@@ -10,7 +10,7 @@ const DevsSchema = new Schema({
     state: String,
     region: String,
     busstop: String,
-    picture: { type: String, default: 'http://placehoder.it/350x150'},
+    picture: { type: String, required: true },
     created: { type: Date, deafault: Date.now }
 });
 

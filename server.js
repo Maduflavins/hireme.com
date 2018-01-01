@@ -38,10 +38,24 @@ var promise = mongoose.connect(config.database,{useMongoClient: true}, (err) =>{
 
 app.engine('.hbs', expressHbs({ defaultLayout: 'layout', extname: '.hbs' }));
 app.set('view engine', 'hbs');
+app.use('/devsUploads', express.static('devsUploads'));
+app.use('/userUploads', express.static('userUploads'));
 app.use(express.static(__dirname + '/public'));
 app.use(morgan('dev'));
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use((req, res, next)=>{
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers', 
+    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+  );
+  if(req.method === 'OPTIONS'){
+    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
+    return res.status(200).json({});
+  }
+  next();
+})
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
