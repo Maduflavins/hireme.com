@@ -43,7 +43,7 @@ router.get('/', (req, res, next) => {
                 count: docs.length,
                 devs: docs.map(doc =>{
                     return{
-                        name: doc.name,
+                        title: doc.title,
                         owner: doc.owner,
                         state: doc.state,
                         picture: doc.picture,
