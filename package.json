@@ -29,5 +29,10 @@
     "passport.socketio": "^3.7.0",
     "socket.io": "^1.7.3",
     "stripe": "^4.25.0"
+  },
+  "devDependencies": {
+    "bootstrap-sass": "^3.3.7",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6"
   }
 }

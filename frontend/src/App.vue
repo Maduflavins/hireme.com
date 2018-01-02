@@ -89,7 +89,7 @@ footer{
   text-align: left;
   min-height: 200px;
   color:  #1d65a6;
-
+font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 footer .signup{
