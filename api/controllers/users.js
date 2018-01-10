@@ -65,7 +65,7 @@ exports. UserSign = (req, res, next)=>{
                     message: 'Auth failed'
                 })
             }
-            bcrypt.compare(req.body.password, user[0].passwprd, (err, result) =>{
+            bcrypt.compare(req.body.password, user[0].password, (err, result) =>{
                 if(err){
                     return res.status(401).json({
                         message: 'Authentication failed'
@@ -99,33 +99,144 @@ exports. UserSign = (req, res, next)=>{
 };
 
 
-exports. forgetPassword = (req, res,next)=>{
+exports.forgotPassword = function(req, res) {
     async.waterfall([
-        function(done){
-            crypto.randomBytes(20, function(err, buf){
-                var token = buf.toString('hex');
-                done(err, token)
+      function(done) {
+        User.findOne({
+          email: req.body.email
+        }).exec(function(err, user) {
+          if (user) {
+            done(err, user);
+          } else {
+            done('User not found.');
+          }
+        });
+      },
+      function(user, done) {
+        // create a random token
+        crypto.randomBytes(20, function(err, buffer) {
+          var token = buffer.toString('hex');
+          done(err, user, token);
+        });
+      },
+      function(user, token, done) {
+        User.findByIdAndUpdate({ _id: user._id }, { resetPasswordToken: token, resetPasswordExpires: Date.now() + 86400000 }, { upsert: true, new: true }).exec(function(err, new_user) {
+          done(err, token, new_user);
+        });
+      },
+      function(token, user, done) {
+        var data = {
+          to: user.email,
+          from: email,
+          subject: 'Password Reset',
+          context: {
+            url: 'http://hireme.com/auth/reset_password?token=' + token,
+            name: user.fullName.split(' ')[0]
+          }
+        };
+  
+        smtpTransport.sendMail(data, function(err) {
+          if (!err) {
+            return res.json({ message: 'Kindly check your email for further instructions' });
+          } else {
+            return res.status(404).json({
+                error: err
             });
+          }
+        });
+      }
+    ], function(err) {
+      return res.status(422).json({ message: err });
+    });
+  };
 
-        },
-        function(token, done){
-            User.findOne({ email: req.body.email}, (err, user)=>{
-                if(!user){
-                    res.status(404).json({
-                        message: 'No such password exist',
-                        url: '/api/forgot'
-                    })
+
+  exports.ResetPassword = function(req, res, next) {
+    User.findOne({
+        resetPasswordToken: req.body.token,
+        resetPasswordExpires: {
+        $gt: Date.now()
+      }
+    }).exec(function(err, user) {
+      if (!err && user) {
+        if (req.body.newPassword === req.body.verifyPassword) {
+          bcrypt.hash(req.body.newPassword, 10);
+          user.resetPasswordToken = undefined;
+          user.resetPasswordExpires = undefined;
+          user.save(function(err) {
+            if (err) {
+              return res.status(422).send({
+                message: err
+              });
+            } else {
+              var data = {
+                to: user.email,
+                from: email,
+                template: 'reset-password-email',
+                subject: 'Password Reset Confirmation',
+                context: {
+                  name: (user.firstname + user.lastname).split(' ')[0]
                 }
-                user.resetPasswordToken = token;
-                user.resetPasswordExpires = Date.now() + 3600000; //1 hour
+              };
+  
+              smtpTransport.sendMail(data, function(err) {
+                if (!err) {
+                  return res.json({ message: 'Password reset' });
+                } else {
+                  return done(err);
+                }
+              });
+            }
+          });
+        } else {
+          return res.status(422).send({
+            message: 'Passwords do not match'
+          });
+        }
+      } else {
+        return res.status(400).send({
+          message: 'Password reset token is invalid or has expired.'
+        });
+      }
+    });
+  };
+  
 
-                user.save((err)=>{
-                    done(err, token, user)
+exports.DeleteUser = (req, res, next)=>{
+    User.remove({ _id: req.params.userId })
+        .exec()
+        .then(result=>{
+            res.status(200).json({
+            message: 'User deleted'
+            
+        });
+    })
+    .catch(err=>{
+        console.log(err)
+        res.status(500).json({
+            error: err
+        })
+    })
+};
+
+exports.EditUserProfile = (req, res, next)=>{
+    User.find({ email: req.body.email})
+        .exec()
+        .then(user=>{
+            if(user.length < 1){
+                return res.status(400).json({
+                    message: 'user not found'
                 })
-            })
+            }
+            var firstname = req.body.firstname;
+            var lastname=  req.body.lastname;
+            var phonenumber =  request.body.phonenumber;
+            var profilePicture =  req.file.path;
 
-        },
-        function(token, user, done){
+        })
+        user
+        .save()
+        .then(user, done=>{
             var smtpTransport = nodemailer.createTransport({
                 service: 'Gmail',
                 auth: {
@@ -137,11 +248,9 @@ exports. forgetPassword = (req, res,next)=>{
             var mailOptions = {
                 to: user.email,
                 from: 'hireme@gmail.com',
-                subject: 'Password Reset',
-                text: 'you are receiving this email because you or someone has requested the reset of the password for your account. \n\n' +
-                'please click on the following link, or paste this into your browser to complete the process:\n\n' + 
-                'http://' + req.headers.host + '/reset/' + token + '\n\n' +
-                'if you did not request this, please ignore this mail'
+                subject: 'Profile Update',
+                text: 'you are receiving this email because you or someone has updated your profile. \n\n' +
+                'You can now go back to the website, login to continue using your account. Than You.'
             };
             smtpTransport.sendMail(mailOptions, function(err){
                 done(err, 'done');
@@ -150,98 +259,13 @@ exports. forgetPassword = (req, res,next)=>{
                     url: '/forgot'
                 });
             })
-        }
-    ])
 
-};
-
-exports.getResetToken = (req, res)=>{
-    User.findOne({resetPasswordToken: req.params.token, resetPasswordExpires:{$gt: Date.now() } }, (err, user)=>{
-        if(!user){
-            res.status(404).json({
-                mesage: 'password reset token is invalid or has expired',
-                url: '/api/forgot'
-            })
-        }
-        res.status(200).json({
-            token: req.params.token
-        })
-    })
-};
-
-exports.PostResetToken = function(req, res){
-    sync.waterfall([
-        function(done){
-            User.findOne({ resetPassword: req.params.token, resetPasswordExpires: { $gt: date.now()}}, function(err, user){
-                if(!user){
-                    res.status(404).json({
-                        message: 'password reset token invalid or has expired',
-                        url: '/api/reset/:token'
-                    })
-                }
-                if(req.body.password === req.body.confirm){
-                    user.setPassword(req.body.password, function(err){
-                        user.resetPasswordToen = undefined;
-                        user.resetPasswordExpires = undefined;
-
-                        user.save(function(err){
-                            req.logIn(user, function(err){
-                                done(err, user);
-                                res.status(200).json({
-                                    message: 'success'
-                                })
-                            })
-                        })
-                    })
-                } else{
-                    res.status(409).json({
-                        message: 'password could not be saved',
-                        url: '/api/reset/:token'
-                    })
-                }
-            })
-
-        },
-        function(user, done){
-            var smtpTransport = nosemailer.createTransport({
-                service: 'Gmail',
-                auth:{
-                    user: 'hiremeinfo@gmail.com',
-                    pass: process.env.GMAIL_PW
-                }
-            });
-            var mailOptions = {
-                to: user.email,
-                subject: 'Your password has been changed',
-                text: 'Hello,\n\n' +
-                'this is a confirmation that the password for your email account' + user.email + 'has been changed successfully. \n'
-            };
-            smtpTransport.sendMail(mailOptions,(err,res)=>{
-                done(err)
-            })
-
-        }
-    ], function(err){
-        res.status(200).json({
-            message: 'successfully changed your password',
-            url: '/'
-        })
-    })
-};
-
-exports.DeleteUser = (req, res, next)=>{
-    User.remove({ _id: req.params.userId })
-        .exec()
-        .then(result=>{
-            res.status(200).json({
-            message: 'User deleted'
             
-        });
-    })
-    .catc(err=>{
-        console.log(err)
-        res.status(500).json({
-            error: err
         })
-    })
-};
+        .catch(err=>{
+            console.log(err)
+            res.status(500).json({
+                error: err
+            })
+        })
+}

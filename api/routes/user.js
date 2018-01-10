@@ -43,11 +43,10 @@ router.post("/signup", upload.single('profilePicture'),  UserController.UserSign
 
 router.post('/login', UserController.UserSign)
 
-router.post('/forgot', UserController.forgetPassword);
+router.post('/forgot-password', UserController.forgetPassword);
 
-router.get('/reset/:token', UserController.getResetToken)
-
-router.post('/reset/:token', UserController.PostResetToken)
+router.post('/reset-password', UserController.ResetPassword);
+router.post('/update-profile/:userId', EditUserProfile );
 
 router.delete('/:userId', UserController.DeleteUser);
 
