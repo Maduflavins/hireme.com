@@ -43,12 +43,12 @@ router.post("/signup", upload.single('profilePicture'),  UserController.UserSign
 
 router.post('/login', UserController.UserSign)
 
-router.post('/forgot-password', UserController.forgetPassword);
+router.post('/forgot-password', UserController.forgotPassword)
 
-router.post('/reset-password', UserController.ResetPassword);
-router.post('/update-profile/:userId', EditUserProfile );
+router.post('/reset-password', UserController.ResetPassword)
+router.post('/update-profile/:userId', UserController.EditUserProfile )
 
-router.delete('/:userId', UserController.DeleteUser);
+router.delete('/:userId', UserController.DeleteUser)
 
 
 module.exports = router;
