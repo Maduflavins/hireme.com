@@ -4,74 +4,102 @@
     <h1>Register</h1>
 
     <div class="register-form">
+      <form enctype="multipart/form-data" novalidate >
+      <div class="form-group">
+    <label for="firstname" >First Name </label>  <input type="text" v-model="user.firstname" class="form-control">
+      </div>
+
+      <div class="form-group">
+    <label for="lastname" >Last Name </label>  <input type="text" v-model="user.lastname" class="form-control">
+      </div>
+
+      <div class="form-group">
+    <label for="email" >Email </label>  <input type="email" v-model="user.email" class="form-control">
+      </div>
+
+
+    <div class="form-group">
+    <label for="phonenumber" >Phone number </label>  <input type="phone" v-model="user.phonenumber" class="form-control">
+      </div>
+
+
+      <div class="form-group">
+    <label for="password" >Password </label>  <input type="password" v-model="user.password" class="form-control">
+      </div>
+
+<div class="form-group">
+    <label for="profilepic" >Phone number </label>  <input type="file" v-on:change="uploadPicture" class="form-control">
+      </div>
+
+
+      <button class="btn btn-primary" @click="register">Register</button>
+      </form>
+    </div>
 
 
 
-  </div>
+    </div>
 
 
 
-  </div>
+
+
+
+
+
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 export default {
-  name: 'Register',
-  data () {
+  name: "Register",
+  data() {
     return {
-     user: [],
-
-    }
+      user: {
+        firstname: "",
+        lastname: "",
+        phonenumber: "",
+        email: "",
+        profilePicture: "",
+        password: ""
+      }
+    };
   },
 
   methods: {
+    register() {
+    let  form = new FormData();
+    form.append('firstname',this.user.firstname);
+     form.append('lastname',this.user.lastname);
+      form.append('email',this.user.email);
+       form.append('profilePicture',this.user.profilePicture);
+        form.append('passsword',this.user.password);
+         form.append('phonenumber',this.user.phonenumber);
 
-    login(){
-      console.log("Running...")
-      axios.get('https://jsonplaceholder.typicode.com/users')
-      .then((response)=>{
-        console.log(response.data);
-        this.users = response.data;
-        console.log(this.users);
-      }).catch((error)=>{
-         console.log(error);
-      });
+      axios
+        .post("http://localhost:3000/register", form)
+        .then(response => {
+
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    uploadPicture(event){
+      this.user.profilePicture = event.target.files[0] || event.datatransfer.files[0];
+
     }
-  },
-
-}
+  }
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.users-container{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: minmax(200px, auto);
-  grid-gap: 1em;
-}
-.users{
-margin-top: 1em;
-  border: 1px solid black;
-  box-shadow: 0em 0em .5em black;
-  padding: .5em;
-}
-.container::before{
-  display: none;
-}
-.container{
-  display: grid;
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-gap:.5em;
-  margin: .2em;
-  width: auto;
-}
-.sidebar-left{
-  position: relative;
-  text-align: left;
-  margin: 2em .2em;
-  top: 2em;
-
+.register-form {
+  max-width: 50%;
+  margin: 5rem auto;
+  border: 3px solid white;
+  padding: 5rem;
 }
 </style>

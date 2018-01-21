@@ -25,10 +25,10 @@ export default {
   name: "Login",
   data() {
     return {
-      email = "",
-      password = "",
-      error = "",
-      success ="",
+      email : "",
+      password : "",
+      error : "",
+      success  : "",
       user: []
     };
   },
